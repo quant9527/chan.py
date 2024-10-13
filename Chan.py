@@ -24,6 +24,7 @@ class CChan:
         lv_list=None,
         config=None,
         autype: AUTYPE = AUTYPE.QFQ,
+            data_src_v=None,
     ):
         if lv_list is None:
             lv_list = [KL_TYPE.K_DAY, KL_TYPE.K_60M]
@@ -33,6 +34,8 @@ class CChan:
         self.end_time = str(end_time) if isinstance(end_time, datetime.date) else end_time
         self.autype = autype
         self.data_src = data_src
+        self.data_src_v = data_src_v
+
         self.lv_list: List[KL_TYPE] = lv_list
 
         if config is None:
@@ -92,7 +95,11 @@ class CChan:
             yield klu
 
     def get_load_stock_iter(self, stockapi_cls, lv):
-        stockapi_instance = stockapi_cls(code=self.code, k_type=lv, begin_date=self.begin_time, end_date=self.end_time, autype=self.autype)
+        if self.data_src_v is not None:
+            stockapi_instance = stockapi_cls(code=self.code, k_type=lv, begin_date=self.begin_time,
+                                             end_date=self.end_time, autype=self.autype, data_src_v=self.data_src_v)
+        else:
+            stockapi_instance = stockapi_cls(code=self.code, k_type=lv, begin_date=self.begin_time, end_date=self.end_time, autype=self.autype,data=self.data_src)
         return self.load_stock_data(stockapi_instance, lv)
 
     def add_lv_iter(self, lv_idx, iter):
